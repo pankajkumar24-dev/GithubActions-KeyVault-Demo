@@ -1,0 +1,33 @@
+name: Read Azure Key Vault
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  read-secret:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Read Secret
+        run: |
+          SECRET=$(az keyvault secret show \
+          --vault-name kv-devops-demo12345 \
+          --name SqlPassword \
+          --query value -o tsv)
+
+          echo "Secret Successfully Read"
+          echo "$SECRET"
